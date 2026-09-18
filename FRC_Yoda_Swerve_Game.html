@@ -1,0 +1,2935 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FRC Yoda Swerve: 3-in-1 Championship Arcade</title>
+  <style>
+    /* ==========================================================================
+       FRC YODA SWERVE ARCADE - CSS STYLES
+       ========================================================================== */
+    :root {
+      --frc-dark: #0a0e14;
+      --frc-panel: #111827;
+      --frc-border: #1f2937;
+      --frc-red: #ef4444;
+      --frc-red-glow: rgba(239, 68, 68, 0.7);
+      --frc-blue: #3b82f6;
+      --frc-blue-glow: rgba(59, 130, 246, 0.7);
+      --frc-yellow: #f59e0b;
+      --frc-green: #10b981;
+      --frc-lyron: #f59e0b;
+      --player-color: #3b82f6;
+      --player-glow: rgba(59, 130, 246, 0.7);
+      --enemy-color: #ef4444;
+      --enemy-glow: rgba(239, 68, 68, 0.7);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--frc-dark);
+      background-image: 
+        radial-gradient(circle at 50% 15%, rgba(30, 41, 59, 0.7) 0%, transparent 70%),
+        linear-gradient(to bottom, #070a0f, #0d131d);
+      color: #f3f4f6;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+      padding: 10px;
+    }
+
+    .game-wrapper {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 860px;
+      width: 100%;
+    }
+
+    /* Üst Başlık Banner */
+    .header-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 800px;
+      margin-bottom: 8px;
+      padding: 6px 14px;
+      background: rgba(17, 24, 39, 0.9);
+      border: 1px solid #2d3748;
+      border-radius: 8px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    .header-banner .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .frc-badge {
+      background: linear-gradient(135deg, #2563eb, #dc2626);
+      color: #fff;
+      font-weight: 900;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      box-shadow: 0 0 10px rgba(255,255,255,0.2);
+    }
+
+    .game-title {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: #e2e8f0;
+      text-transform: uppercase;
+    }
+
+    .game-title span {
+      color: #10b981;
+    }
+
+    /* Üst Cüzdan (Lyron) Rozeti */
+    .lyron-pill {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid #f59e0b;
+      border-radius: 20px;
+      padding: 4px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 900;
+      color: #fbbf24;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .lyron-pill:hover {
+      transform: scale(1.05);
+      background: rgba(245, 158, 11, 0.25);
+    }
+
+    .controls-hint {
+      font-size: 11px;
+      color: #94a3b8;
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .key-badge {
+      background: #1e293b;
+      border: 1px solid #475569;
+      border-radius: 4px;
+      padding: 2px 5px;
+      font-family: monospace;
+      font-size: 10px;
+      color: #38bdf8;
+      font-weight: bold;
+    }
+
+    /* FRC Dashboard */
+    .dashboard {
+      width: 800px;
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-bottom: none;
+      border-radius: 10px 10px 0 0;
+      display: grid;
+      grid-template-columns: 1.1fr 1.4fr 1.1fr 1fr auto;
+      padding: 8px 14px;
+      gap: 10px;
+      align-items: center;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.4);
+    }
+
+    .stat-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(51, 65, 85, 0.7);
+      border-radius: 6px;
+      padding: 5px 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .stat-label {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #64748b;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .stat-value {
+      font-size: 18px;
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: 900;
+      color: #f8fafc;
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .stat-value .unit {
+      font-size: 10px;
+      font-weight: 500;
+      color: #94a3b8;
+    }
+
+    .phase-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-align: center;
+      text-transform: uppercase;
+      box-shadow: 0 0 10px currentColor;
+    }
+
+    .phase-auto {
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid #f59e0b;
+      color: #f59e0b;
+    }
+
+    .phase-teleop {
+      background: rgba(59, 130, 246, 0.2);
+      border: 1px solid #3b82f6;
+      color: #3b82f6;
+    }
+
+    .phase-endgame {
+      background: rgba(239, 68, 68, 0.25);
+      border: 1px solid #ef4444;
+      color: #ef4444;
+      animation: pulse-border 1s infinite alternate;
+    }
+
+    @keyframes pulse-border {
+      0% { box-shadow: 0 0 4px #ef4444; }
+      100% { box-shadow: 0 0 14px #ef4444; }
+    }
+
+    .battery-bar-container {
+      width: 100%;
+      height: 7px;
+      background: #1e293b;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 3px;
+    }
+
+    .battery-bar-fill {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981);
+      transition: width 0.2s ease;
+    }
+
+    /* Oyundayken Üstte Yer Alan Küçük Menü Butonu */
+    .btn-ingame-menu {
+      background: #1e293b;
+      border: 1px solid #475569;
+      color: #e2e8f0;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .btn-ingame-menu:hover {
+      background: #ef4444;
+      border-color: #ef4444;
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.6);
+    }
+
+    /* Canvas Sahne Alanı */
+    .canvas-container {
+      position: relative;
+      width: 800px;
+      height: 500px;
+      background: #0b0f17;
+      border: 3px solid #1e293b;
+      border-radius: 0 0 10px 10px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+    }
+
+    #gameCanvas {
+      display: block;
+      width: 800px;
+      height: 500px;
+    }
+
+    /* Arıza (Glitch) Overlay */
+    #glitchOverlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(239, 68, 68, 0.45);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 50;
+      backdrop-filter: blur(2px);
+      animation: glitch-anim 0.15s infinite;
+    }
+
+    #glitchOverlay.active {
+      display: flex;
+    }
+
+    .glitch-text {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 32px;
+      font-weight: 900;
+      color: #ffffff;
+      text-shadow: 3px 3px 0 #ef4444, -3px -3px 0 #3b82f6;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .glitch-subtext {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fee2e2;
+      background: rgba(0, 0, 0, 0.85);
+      padding: 6px 14px;
+      border-radius: 4px;
+      border: 1px solid #ef4444;
+      margin-top: 10px;
+      letter-spacing: 2px;
+    }
+
+    @keyframes glitch-anim {
+      0% { transform: translate(0); opacity: 0.85; }
+      20% { transform: translate(-4px, 3px); opacity: 0.95; }
+      40% { transform: translate(3px, -2px); opacity: 0.8; }
+      60% { transform: translate(-3px, -3px); opacity: 1; }
+      80% { transform: translate(4px, 2px); opacity: 0.9; }
+      100% { transform: translate(0); opacity: 0.85; }
+    }
+
+    /* Ekran Katmanları */
+    .screen-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(10, 14, 20, 0.95);
+      backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+      text-align: center;
+      transition: opacity 0.3s ease;
+    }
+
+    .screen-overlay.hidden {
+      display: none;
+    }
+
+    .screen-title {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      background: linear-gradient(135deg, #ffffff 40%, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .screen-subtitle {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 14px;
+      max-width: 620px;
+      line-height: 1.4;
+    }
+
+    .menu-action-row {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    /* İttifak Seçimi */
+    .alliance-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 14px;
+      width: 100%;
+    }
+
+    .section-title-badge {
+      font-size: 10px;
+      font-weight: 800;
+      color: #38bdf8;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      background: rgba(56, 189, 248, 0.1);
+      padding: 2px 10px;
+      border-radius: 4px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .alliance-buttons {
+      display: flex;
+      gap: 16px;
+    }
+
+    .alliance-btn {
+      width: 200px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      background: #1e293b;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .alliance-btn.selected {
+      transform: scale(1.04);
+    }
+
+    .alliance-btn.red {
+      border-color: rgba(239, 68, 68, 0.4);
+    }
+    .alliance-btn.red:hover, .alliance-btn.red.selected {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.18);
+      box-shadow: 0 0 16px rgba(239, 68, 68, 0.5);
+    }
+
+    .alliance-btn.blue {
+      border-color: rgba(59, 130, 246, 0.4);
+    }
+    .alliance-btn.blue:hover, .alliance-btn.blue.selected {
+      border-color: #3b82f6;
+      background: rgba(59, 130, 246, 0.18);
+      box-shadow: 0 0 16px rgba(59, 130, 246, 0.5);
+    }
+
+    .alliance-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      font-weight: 900;
+    }
+
+    .alliance-btn.red .alliance-icon { background: #ef4444; color: #fff; }
+    .alliance-btn.blue .alliance-icon { background: #3b82f6; color: #fff; }
+
+    .alliance-name { font-size: 14px; font-weight: 800; text-transform: uppercase; }
+    .alliance-rival-hint { font-size: 10px; color: #94a3b8; }
+
+    /* 3 Oyun Modu Kartları */
+    .modes-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      width: 100%;
+      max-width: 740px;
+      margin-bottom: 16px;
+    }
+
+    .mode-card {
+      background: #111827;
+      border: 2px solid #1f2937;
+      border-radius: 8px;
+      padding: 12px 8px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .mode-card:hover {
+      border-color: #38bdf8;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(56, 189, 248, 0.25);
+      background: #1e293b;
+    }
+
+    .mode-card.active {
+      border-color: #10b981;
+      background: rgba(16, 185, 129, 0.12);
+      box-shadow: 0 0 16px rgba(16, 185, 129, 0.35);
+    }
+
+    .mode-badge-num {
+      position: absolute;
+      top: -7px;
+      left: 8px;
+      background: #0284c7;
+      color: #fff;
+      font-size: 8px;
+      font-weight: 900;
+      padding: 1px 5px;
+      border-radius: 4px;
+      letter-spacing: 1px;
+    }
+
+    .mode-icon { font-size: 24px; margin-bottom: 4px; }
+    .mode-title { font-size: 13px; font-weight: 800; color: #f1f5f9; text-transform: uppercase; margin-bottom: 3px; }
+    .mode-desc { font-size: 10px; color: #94a3b8; line-height: 1.3; }
+
+    /* Butonlar */
+    .btn-action {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 28px;
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      text-transform: uppercase;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+      background: linear-gradient(135deg, #34d399, #10b981);
+    }
+
+    .btn-wardrobe-open {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      cursor: pointer;
+      text-transform: uppercase;
+      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-wardrobe-open:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6);
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    }
+
+    /* GARDIRAP MODAL / EKRANI */
+    .wardrobe-modal {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(10, 14, 20, 0.96);
+      backdrop-filter: blur(12px);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 150;
+      padding: 20px;
+    }
+
+    .wardrobe-modal.active {
+      display: flex;
+    }
+
+    .wardrobe-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      width: 100%;
+      max-width: 760px;
+      margin-bottom: 18px;
+    }
+
+    .wardrobe-item-card {
+      background: #111827;
+      border: 2px solid #1f2937;
+      border-radius: 10px;
+      padding: 10px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .wardrobe-item-card.equipped {
+      border-color: #10b981;
+      background: rgba(16, 185, 129, 0.12);
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+    }
+
+    .wardrobe-item-preview {
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      background: #1e293b;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+    }
+
+    .wardrobe-item-name {
+      font-size: 11px;
+      font-weight: 800;
+      color: #f1f5f9;
+      margin-bottom: 4px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .wardrobe-item-price {
+      font-size: 11px;
+      font-weight: 900;
+      color: #fbbf24;
+      margin-bottom: 8px;
+    }
+
+    .btn-outfit-action {
+      width: 100%;
+      padding: 6px 0;
+      border-radius: 6px;
+      border: none;
+      font-size: 10px;
+      font-weight: 900;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-buy {
+      background: #f59e0b;
+      color: #000;
+    }
+    .btn-buy:hover { background: #fbbf24; }
+
+    .btn-equip {
+      background: #3b82f6;
+      color: #fff;
+    }
+    .btn-equip:hover { background: #60a5fa; }
+
+    .btn-equipped {
+      background: #10b981;
+      color: #fff;
+      cursor: default;
+    }
+
+    /* Game Over */
+    .result-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 12px;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .result-box {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 8px;
+    }
+
+    .result-box-val {
+      font-size: 20px;
+      font-weight: 900;
+      color: #f8fafc;
+      font-family: monospace;
+    }
+
+    .earned-lyron-banner {
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid #f59e0b;
+      color: #fbbf24;
+      font-weight: 900;
+      font-size: 14px;
+      padding: 6px 16px;
+      border-radius: 20px;
+      margin-bottom: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .save-score-form {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .team-input {
+      flex: 1;
+      background: #1e293b;
+      border: 1px solid #475569;
+      border-radius: 6px;
+      padding: 8px 12px;
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .team-input:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+    }
+
+    .leaderboard-table-container {
+      width: 100%;
+      max-width: 520px;
+      max-height: 130px;
+      overflow-y: auto;
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .leaderboard-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      text-align: left;
+    }
+
+    .leaderboard-table th {
+      background: #1f2937;
+      color: #94a3b8;
+      padding: 5px 8px;
+      font-weight: 700;
+      text-transform: uppercase;
+      position: sticky;
+      top: 0;
+    }
+
+    .leaderboard-table td {
+      padding: 5px 8px;
+      border-bottom: 1px solid #1f2937;
+      color: #e2e8f0;
+    }
+
+    .alliance-tag {
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .alliance-tag.red {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+      border: 1px solid #ef4444;
+    }
+
+    .alliance-tag.blue {
+      background: rgba(59, 130, 246, 0.2);
+      color: #3b82f6;
+      border: 1px solid #3b82f6;
+    }
+
+    .footer-info {
+      margin-top: 8px;
+      font-size: 11px;
+      color: #64748b;
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="game-wrapper">
+    <!-- Üst Başlık Banner -->
+    <div class="header-banner">
+      <div class="logo-area">
+        <span class="frc-badge">FIRST® FRC</span>
+        <div class="game-title">YODA SWERVE: <span>3-IN-1 ARCADE</span></div>
+      </div>
+
+      <!-- Lyron Bakiye Göstergesi -->
+      <div class="lyron-pill" id="btnHeaderWardrobe" title="Gardıroba Git">
+        <span>🪙</span>
+        <span id="headerLyronVal">0</span>
+        <span>LY</span>
+        <span style="font-size: 10px; color: #94a3b8; margin-left: 2px;">[Gardırop]</span>
+      </div>
+
+      <div class="controls-hint">
+        <span>Sürüş:</span>
+        <span class="key-badge">W</span>
+        <span class="key-badge">A</span>
+        <span class="key-badge">S</span>
+        <span class="key-badge">D</span>
+        <span style="margin-left:4px;">Aksiyon:</span>
+        <span class="key-badge">SPACE</span>
+      </div>
+    </div>
+
+    <!-- FRC Dashboard (Üst Panel) -->
+    <div class="dashboard">
+      <!-- Skor -->
+      <div class="stat-card">
+        <div class="stat-label">FRC Match Score</div>
+        <div class="stat-value" id="dashboardScore">0 <span class="unit">PTS</span></div>
+      </div>
+
+      <!-- Kalan Süre (1 Dakika) ve Faz Rozeti -->
+      <div class="stat-card" style="align-items: center;">
+        <div class="stat-label" id="dashboardModeName">DEFENSE EVADER</div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="phase-badge phase-auto" id="dashboardPhase">AUTO</span>
+          <div class="stat-value" id="dashboardTimer">01:00</div>
+        </div>
+      </div>
+
+      <!-- Dinamik Gösterge -->
+      <div class="stat-card">
+        <div class="stat-label" style="display:flex; justify-content:space-between;">
+          <span id="statDynamicLabel">Battery Voltage</span>
+          <span id="dashboardVoltageTxt" style="color:#10b981;">12.6V</span>
+        </div>
+        <div class="battery-bar-container">
+          <div class="battery-bar-fill" id="dashboardVoltageBar" style="width: 100%;"></div>
+        </div>
+      </div>
+
+      <!-- İttifak ve İkincil İstatistik -->
+      <div class="stat-card" style="display:flex; flex-direction:row; justify-content:space-between; align-items:center;">
+        <div>
+          <div class="stat-label" id="dashboardSubLabel">Brownouts</div>
+          <div class="stat-value" id="dashboardSubValue" style="color:#ef4444; font-size:17px;">0</div>
+        </div>
+        <div style="text-align: right;">
+          <div class="stat-label">Alliances</div>
+          <div style="font-size:10px; font-weight:800;">
+            <span id="playerBadgeTxt" style="color:var(--player-color);">YOU: BLUE</span>
+            <br/>
+            <span id="enemyBadgeTxt" style="color:var(--enemy-color); font-size:9px;">RIVAL: RED</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Oyundayken Süre Dolmadan Menüye Dönüş Butonu -->
+      <button class="btn-ingame-menu" id="btnIngameMenu" title="Ana Menüye Dön">
+        <span>🏠</span>
+        <span>MENÜ</span>
+      </button>
+    </div>
+
+    <!-- Canvas Sahne Alanı -->
+    <div class="canvas-container">
+      <canvas id="gameCanvas" width="800" height="500"></canvas>
+
+      <!-- Çarpışma / Glitch Katmanı -->
+      <div id="glitchOverlay">
+        <div class="glitch-text">⚠️ BROWNOUT DETECTED ⚠️</div>
+        <div class="glitch-subtext">VOLTAGE DROP: 6.2V | RIO REBOOTING... (1.5s DOKUNULMAZ)</div>
+      </div>
+
+      <!-- 1. EKRAN: İttifak & Oyun Modu Seçim Ekranı -->
+      <div class="screen-overlay" id="startScreen">
+        <div class="screen-title">FRC YODA SWERVE ARCADE</div>
+        <div class="screen-subtitle">
+          Maç süresi <strong>1 Dakika (60sn)</strong>! Skor toplayarak <strong>LYRON (LY)</strong> kazan, Gardıroptan Yoda'ya efsanevi FRC kostümleri giydir!
+        </div>
+
+        <!-- İttifak Seçimi -->
+        <div class="alliance-section">
+          <div class="section-title-badge">1. ADIM: İTTİFAKINI BELİRLE</div>
+          <div class="alliance-buttons">
+            <div class="alliance-btn red" id="btnSelectRed">
+              <div class="alliance-icon">R</div>
+              <div class="alliance-text-col">
+                <div class="alliance-name" style="color: #ef4444;">Kırmızı İttifak</div>
+                <div class="alliance-rival-hint">⚡ Rakiplerin Mavi olacak!</div>
+              </div>
+            </div>
+
+            <div class="alliance-btn blue selected" id="btnSelectBlue">
+              <div class="alliance-icon">B</div>
+              <div class="alliance-text-col">
+                <div class="alliance-name" style="color: #3b82f6;">Mavi İttifak</div>
+                <div class="alliance-rival-hint">⚡ Rakiplerin Kırmızı olacak!</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3 Oyun Modu Kartları -->
+        <div class="section-title-badge">2. ADIM: OYUN MODUNU SEÇ</div>
+        <div class="modes-container">
+          <div class="mode-card active" id="cardModeEvader">
+            <span class="mode-badge-num">MOD 1</span>
+            <div class="mode-icon">🛡️</div>
+            <div class="mode-title">Defans Kaçışı</div>
+            <div class="mode-desc">1 saniye önceden beliren ikazlardan kaç! NOTE topla.</div>
+          </div>
+
+          <div class="mode-card" id="cardModeShooter">
+            <span class="mode-badge-num">MOD 2</span>
+            <div class="mode-icon">🎯</div>
+            <div class="mode-title">Speaker Hedef Atışı</div>
+            <div class="mode-desc">Kapasite: 4 Nota! A/D ile hassas nişan al, [SPACE] ile şut çek!</div>
+          </div>
+
+          <div class="mode-card" id="cardModeSumo">
+            <span class="mode-badge-num">MOD 3</span>
+            <div class="mode-icon">💥</div>
+            <div class="mode-title">Bumper Bash (Sumo)</div>
+            <div class="mode-desc">[SPACE] ile TURBO BOOST basarak rakiplere çarp ve arenadan süpür!</div>
+          </div>
+        </div>
+
+        <div class="menu-action-row">
+          <button class="btn-action" id="btnStartGame">🚀 1 DAKİKALIK MAÇA BAŞLA</button>
+          <button class="btn-wardrobe-open" id="btnOpenWardrobe">👗 GARDIROP</button>
+        </div>
+      </div>
+
+      <!-- GARDIRAP MODALI (YODA WARDROBE) -->
+      <div class="wardrobe-modal" id="wardrobeModal">
+        <div class="screen-title" style="color:#fbbf24;">👗 YODA GARDIROBU</div>
+        <div class="screen-subtitle">
+          Maçlarda topladığın skorlar <strong>LYRON (LY)</strong> parasına dönüşür! Yoda'ya özel FRC kıyafetleri satın alıp giydir.
+        </div>
+
+        <div class="earned-lyron-banner">
+          <span>Mevcut Bakiye:</span>
+          <span id="modalLyronVal" style="font-size:18px;">0</span>
+          <span>LY</span>
+        </div>
+
+        <div class="wardrobe-grid" id="wardrobeGrid">
+          <!-- Dinamik olarak JS ile 5 kıyafet üretilir -->
+        </div>
+
+        <button class="btn-action" id="btnCloseWardrobe" style="background:#475569;">✖ GARDIROBU KAPAT</button>
+      </div>
+
+      <!-- 2. EKRAN: Maç Sonu (Game Over) -->
+      <div class="screen-overlay hidden" id="gameOverScreen">
+        <div class="screen-title" id="gameOverTitle">MATCH COMPLETE!</div>
+        <div class="screen-subtitle" id="gameOverSub">60 Saniyelik FRC Maç süresi tamamlandı.</div>
+
+        <div class="earned-lyron-banner" id="matchRewardBanner">
+          <span>🎉 Maç Ödülü: +</span>
+          <span id="earnedLyronVal">0</span>
+          <span>LY Kazandın!</span>
+        </div>
+
+        <div class="result-stats-grid">
+          <div class="result-box">
+            <div class="stat-label">Toplam Skor</div>
+            <div class="result-box-val" id="finalScoreVal" style="color: #10b981;">0</div>
+          </div>
+          <div class="result-box">
+            <div class="stat-label" id="finalStat2Label">Başarı</div>
+            <div class="result-box-val" id="finalStat2Val" style="color: #38bdf8;">0</div>
+          </div>
+          <div class="result-box">
+            <div class="stat-label" id="finalStat3Label">Brownout</div>
+            <div class="result-box-val" id="finalStat3Val" style="color: #ef4444;">0</div>
+          </div>
+        </div>
+
+        <form class="save-score-form" id="saveScoreForm">
+          <input type="text" id="playerNameInput" class="team-input" placeholder="Takım Adı / Numaranız (örn: #8058 Yoda)" maxlength="20" required autocomplete="off" />
+          <button type="submit" class="btn-action" style="padding: 8px 18px; font-size: 12px;">Kaydet</button>
+        </form>
+
+        <div class="leaderboard-table-container">
+          <table class="leaderboard-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Takım</th>
+                <th>Mod</th>
+                <th>İttifak</th>
+                <th>Skor</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboardBody"></tbody>
+          </table>
+        </div>
+
+        <div class="menu-action-row">
+          <button class="btn-action" id="btnRestart">🔄 YENİDEN OYNA</button>
+          <button class="btn-wardrobe-open" id="btnRestartWardrobe">👗 GARDIROP</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alt Bilgi Paneli -->
+    <div class="footer-info">
+      <span>FIRST Robotics Competition (FRC) 3-in-1 Championship</span>
+      <span>•</span>
+      <span>Lyron (LY) Para Birimi & Gardırop</span>
+      <span>•</span>
+      <span>GitHub Pages %100 Uyumlu</span>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       OYUN MOTORU VE MANTIĞI (JAVASCRIPT)
+       ========================================================================== -->
+  <script>
+    /* --------------------------------------------------------------------------
+       1. WEB AUDIO API - SENTETİK FRC SES MOTORU
+       -------------------------------------------------------------------------- */
+    class AudioEngine {
+      constructor() {
+        this.ctx = null;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      playMatchStart() {
+        this.init();
+        const now = this.ctx.currentTime;
+        [0, 0.15, 0.3].forEach((delay, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(880 + idx * 80, now + delay);
+          gain.gain.setValueAtTime(0.28, now + delay);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.1);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + delay);
+          osc.stop(now + delay + 0.1);
+        });
+
+        const hornStart = now + 0.5;
+        const oscHorn = this.ctx.createOscillator();
+        const gainHorn = this.ctx.createGain();
+        oscHorn.type = 'sawtooth';
+        oscHorn.frequency.setValueAtTime(320, hornStart);
+        oscHorn.frequency.exponentialRampToValueAtTime(640, hornStart + 0.55);
+        gainHorn.gain.setValueAtTime(0.35, hornStart);
+        gainHorn.gain.exponentialRampToValueAtTime(0.001, hornStart + 0.75);
+        oscHorn.connect(gainHorn);
+        gainHorn.connect(this.ctx.destination);
+        oscHorn.start(hornStart);
+        oscHorn.stop(hornStart + 0.8);
+      }
+
+      playWarningPulse() {
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1200, now);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.08);
+      }
+
+      playBrownoutSound() {
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(140, now);
+        osc.frequency.linearRampToValueAtTime(40, now + 0.35);
+        gain.gain.setValueAtTime(0.4, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.55);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.55);
+
+        const bufferSize = Math.floor(this.ctx.sampleRate * 0.2);
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+        const noiseFilter = this.ctx.createBiquadFilter();
+        noiseFilter.type = 'bandpass';
+        noiseFilter.frequency.value = 550;
+        const noiseGain = this.ctx.createGain();
+        noiseGain.gain.setValueAtTime(0.25, now);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        noise.connect(noiseFilter);
+        noiseFilter.connect(noiseGain);
+        noiseGain.connect(this.ctx.destination);
+        noise.start(now);
+      }
+
+      playScoreSound() {
+        this.init();
+        const now = this.ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.04);
+          gain.gain.setValueAtTime(0.16, now + idx * 0.04);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.04 + 0.1);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.04);
+          osc.stop(now + idx * 0.04 + 0.12);
+        });
+      }
+
+      playShootSound() {
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(320, now);
+        osc.frequency.exponentialRampToValueAtTime(1200, now + 0.14);
+        gain.gain.setValueAtTime(0.28, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.16);
+      }
+
+      playTargetHitSound() {
+        this.init();
+        const now = this.ctx.currentTime;
+        [1046.5, 1318.5, 1567.98].forEach((f, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(f, now + i * 0.05);
+          gain.gain.setValueAtTime(0.24, now + i * 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.05 + 0.18);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + i * 0.05);
+          osc.stop(now + i * 0.05 + 0.2);
+        });
+      }
+
+      playSmashSound() {
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(260, now);
+        osc.frequency.exponentialRampToValueAtTime(60, now + 0.25);
+        gain.gain.setValueAtTime(0.5, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.32);
+      }
+
+      playBoostSound() {
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(240, now);
+        osc.frequency.exponentialRampToValueAtTime(700, now + 0.2);
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.25);
+      }
+
+      playCoinSound() {
+        this.init();
+        const now = this.ctx.currentTime;
+        [987.77, 1318.5].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+          gain.gain.setValueAtTime(0.2, now + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.2);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.08);
+          osc.stop(now + idx * 0.08 + 0.2);
+        });
+      }
+
+      playClick() {
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(550, now);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.04);
+      }
+    }
+
+    const audio = new AudioEngine();
+
+    /* --------------------------------------------------------------------------
+       2. OYUN SABİTLERİ VE DURUMU
+       -------------------------------------------------------------------------- */
+    const CANVAS_WIDTH = 800;
+    const CANVAS_HEIGHT = 500;
+    const MATCH_DURATION = 60; // 1 DAKİKA
+
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // UI Referansları
+    const glitchOverlay = document.getElementById('glitchOverlay');
+    const startScreen = document.getElementById('startScreen');
+    const gameOverScreen = document.getElementById('gameOverScreen');
+    const wardrobeModal = document.getElementById('wardrobeModal');
+    const dashboardScore = document.getElementById('dashboardScore');
+    const dashboardModeName = document.getElementById('dashboardModeName');
+    const dashboardPhase = document.getElementById('dashboardPhase');
+    const dashboardTimer = document.getElementById('dashboardTimer');
+    const statDynamicLabel = document.getElementById('statDynamicLabel');
+    const dashboardVoltageTxt = document.getElementById('dashboardVoltageTxt');
+    const dashboardVoltageBar = document.getElementById('dashboardVoltageBar');
+    const dashboardSubLabel = document.getElementById('dashboardSubLabel');
+    const dashboardSubValue = document.getElementById('dashboardSubValue');
+    const playerBadgeTxt = document.getElementById('playerBadgeTxt');
+    const enemyBadgeTxt = document.getElementById('enemyBadgeTxt');
+    const leaderboardBody = document.getElementById('leaderboardBody');
+    const headerLyronVal = document.getElementById('headerLyronVal');
+    const modalLyronVal = document.getElementById('modalLyronVal');
+    const wardrobeGrid = document.getElementById('wardrobeGrid');
+
+    // Oyun Değişkenleri
+    let gameState = 'START';
+    let selectedAlliance = 'blue';
+    let rivalAlliance = 'red';
+    let selectedMode = 'evader'; // 'evader', 'shooter', 'sumo'
+    
+    let matchTimeRemaining = MATCH_DURATION;
+    let score = 0;
+    let brownoutCount = 0;
+    let batteryVoltage = 12.6;
+    let isBrownoutLocked = false;
+    let brownoutEndTime = 0;
+    let invulnerableUntil = 0;
+    let lastTime = 0;
+
+    // Mod 1: Evader
+    let dodgedObstacles = 0;
+
+    // Mod 2: Shooter (Kapasite: 4 Nota)
+    let carriedNotes = 2;
+    let maxCarriedNotes = 4;
+    let speakerScoreCount = 0;
+    let projectiles = [];
+    let speakerTarget = { x: CANVAS_WIDTH / 2, y: 50, width: 150, height: 26, vx: 2.4 };
+    let defenseBlockers = [];
+    let trussPillars = [];
+
+    // Mod 3: Sumo
+    let turboEnergy = 100;
+    let knockouts = 0;
+    let sumoEnemies = [];
+
+    // Swerve Yoda Robot
+    const robot = {
+      x: CANVAS_WIDTH / 2,
+      y: CANVAS_HEIGHT / 2,
+      radius: 28,
+      vx: 0,
+      vy: 0,
+      maxSpeed: 5.2,
+      accel: 0.55,
+      friction: 0.89,
+      heading: 0,
+      targetHeading: 0,
+      trail: []
+    };
+
+    const keys = {
+      w: false, a: false, s: false, d: false,
+      ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false,
+      ' ': false
+    };
+
+    let obstacles = [];
+    let warnings = [];
+    let gamePieces = [];
+    let particles = [];
+    let nextObstacleSpawn = 0;
+    let nextPieceSpawn = 0;
+
+    /* --------------------------------------------------------------------------
+       3. GARDIRAP VE LYRON (LY) EKONOMİ SİSTEMİ
+       -------------------------------------------------------------------------- */
+    const STORAGE_LYRON = 'frc_yoda_lyron_v1';
+    const STORAGE_PURCHASED = 'frc_yoda_purchased_outfits_v1';
+    const STORAGE_ACTIVE_OUTFIT = 'frc_yoda_active_outfit_v1';
+
+    // 5 Farklı Yoda Kıyafeti
+    const OUTFITS = [
+      {
+        id: 'classic',
+        name: 'Klasik Çırak',
+        price: 0,
+        icon: '🥋',
+        desc: 'Kahverengi klasik Jedi cübbesi ve krem yaka.'
+      },
+      {
+        id: 'safety',
+        name: 'Safety Captain',
+        price: 350,
+        icon: '🦺',
+        desc: 'Fosforlu reflektörlü cübbe ve koruyucu FRC gözlüğü!'
+      },
+      {
+        id: 'driver',
+        name: 'Driver Station Pro',
+        price: 750,
+        icon: '🎧',
+        desc: 'Koyu FRC kapüşonlusu ve Drive Team kulaklığı.'
+      },
+      {
+        id: 'cyber',
+        name: 'Cyber Mecha Yoda',
+        price: 1500,
+        icon: '🤖',
+        desc: 'Siber vizör ve titanyum zırh kaplaması.'
+      },
+      {
+        id: 'champion',
+        name: 'Dünya Şampiyonu',
+        price: 3000,
+        icon: '👑',
+        desc: 'Altın yaldızlı pelerin ve şampiyonluk tacı!'
+      }
+    ];
+
+    function getLyron() {
+      try {
+        const val = localStorage.getItem(STORAGE_LYRON);
+        return val ? parseInt(val, 10) : 100; // Başlangıç hediyesi 100 LY
+      } catch (e) {
+        return 100;
+      }
+    }
+
+    function addLyron(amount) {
+      const current = getLyron();
+      const updated = current + amount;
+      try {
+        localStorage.setItem(STORAGE_LYRON, updated.toString());
+      } catch (e) {}
+      updateLyronUI();
+    }
+
+    function getPurchasedOutfits() {
+      try {
+        const val = localStorage.getItem(STORAGE_PURCHASED);
+        return val ? JSON.parse(val) : ['classic'];
+      } catch (e) {
+        return ['classic'];
+      }
+    }
+
+    function getActiveOutfit() {
+      try {
+        return localStorage.getItem(STORAGE_ACTIVE_OUTFIT) || 'classic';
+      } catch (e) {
+        return 'classic';
+      }
+    }
+
+    function setActiveOutfit(id) {
+      try {
+        localStorage.setItem(STORAGE_ACTIVE_OUTFIT, id);
+      } catch (e) {}
+      renderWardrobe();
+    }
+
+    function updateLyronUI() {
+      const ly = getLyron();
+      headerLyronVal.textContent = ly;
+      modalLyronVal.textContent = ly;
+    }
+
+    function renderWardrobe() {
+      updateLyronUI();
+      const ly = getLyron();
+      const purchased = getPurchasedOutfits();
+      const active = getActiveOutfit();
+
+      wardrobeGrid.innerHTML = '';
+
+      OUTFITS.forEach(outfit => {
+        const isBought = purchased.includes(outfit.id);
+        const isEquipped = active === outfit.id;
+
+        const card = document.createElement('div');
+        card.className = `wardrobe-item-card ${isEquipped ? 'equipped' : ''}`;
+
+        let btnHtml = '';
+        if (isEquipped) {
+          btnHtml = `<button class="btn-outfit-action btn-equipped">✔ GİYİLDİ</button>`;
+        } else if (isBought) {
+          btnHtml = `<button class="btn-outfit-action btn-equip" onclick="equipOutfit('${outfit.id}')">GİY</button>`;
+        } else {
+          const canAfford = ly >= outfit.price;
+          btnHtml = `<button class="btn-outfit-action btn-buy" style="${canAfford ? '' : 'opacity:0.5;'}" onclick="buyOutfit('${outfit.id}', ${outfit.price})">SATIN AL</button>`;
+        }
+
+        card.innerHTML = `
+          <div class="wardrobe-item-preview">${outfit.icon}</div>
+          <div class="wardrobe-item-name">${outfit.name}</div>
+          <div class="wardrobe-item-price">${outfit.price === 0 ? 'ÜCRETSİZ' : outfit.price + ' LY'}</div>
+          ${btnHtml}
+        `;
+        wardrobeGrid.appendChild(card);
+      });
+    }
+
+    window.buyOutfit = function(id, price) {
+      const ly = getLyron();
+      if (ly >= price) {
+        audio.playCoinSound();
+        addLyron(-price);
+        const purchased = getPurchasedOutfits();
+        if (!purchased.includes(id)) {
+          purchased.push(id);
+          try {
+            localStorage.setItem(STORAGE_PURCHASED, JSON.stringify(purchased));
+          } catch (e) {}
+        }
+        setActiveOutfit(id);
+      } else {
+        audio.playWarningPulse();
+        alert(`Yetersiz bakiye! Bu kıyafet için ${price} LY gerekiyor. (Şu an: ${ly} LY)`);
+      }
+    };
+
+    window.equipOutfit = function(id) {
+      audio.playClick();
+      setActiveOutfit(id);
+    };
+
+    /* --------------------------------------------------------------------------
+       4. İTTİFAK VE RENK YÖNETİMİ
+       -------------------------------------------------------------------------- */
+    function setAlliance(alliance) {
+      selectedAlliance = alliance;
+      rivalAlliance = (alliance === 'red') ? 'blue' : 'red';
+
+      const pColor = selectedAlliance === 'red' ? '#ef4444' : '#3b82f6';
+      const pGlow = selectedAlliance === 'red' ? 'rgba(239,68,68,0.7)' : 'rgba(59,130,246,0.7)';
+      const eColor = rivalAlliance === 'red' ? '#ef4444' : '#3b82f6';
+      const eGlow = rivalAlliance === 'red' ? 'rgba(239,68,68,0.7)' : 'rgba(59,130,246,0.7)';
+
+      document.documentElement.style.setProperty('--player-color', pColor);
+      document.documentElement.style.setProperty('--player-glow', pGlow);
+      document.documentElement.style.setProperty('--enemy-color', eColor);
+      document.documentElement.style.setProperty('--enemy-glow', eGlow);
+
+      playerBadgeTxt.textContent = `YOU: ${selectedAlliance.toUpperCase()}`;
+      playerBadgeTxt.style.color = pColor;
+      enemyBadgeTxt.textContent = `RIVAL: ${rivalAlliance.toUpperCase()}`;
+      enemyBadgeTxt.style.color = eColor;
+
+      if (selectedAlliance === 'red') {
+        document.getElementById('btnSelectRed').classList.add('selected');
+        document.getElementById('btnSelectBlue').classList.remove('selected');
+      } else {
+        document.getElementById('btnSelectBlue').classList.add('selected');
+        document.getElementById('btnSelectRed').classList.remove('selected');
+      }
+    }
+
+    /* --------------------------------------------------------------------------
+       5. ÇİZİM FONKSİYONLARI (GARDIRAP KOSTÜMLERİYLE YODA)
+       -------------------------------------------------------------------------- */
+    function drawFieldBackground() {
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+      ctx.strokeStyle = 'rgba(51, 65, 85, 0.25)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < CANVAS_WIDTH; x += 40) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, CANVAS_HEIGHT); ctx.stroke();
+      }
+      for (let y = 0; y < CANVAS_HEIGHT; y += 40) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(CANVAS_WIDTH, y); ctx.stroke();
+      }
+
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 6]);
+      ctx.beginPath(); ctx.moveTo(CANVAS_WIDTH * 0.25, 0); ctx.lineTo(CANVAS_WIDTH * 0.25, CANVAS_HEIGHT); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(CANVAS_WIDTH * 0.75, 0); ctx.lineTo(CANVAS_WIDTH * 0.75, CANVAS_HEIGHT); ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.22)';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(CANVAS_WIDTH / 2, 0); ctx.lineTo(CANVAS_WIDTH / 2, CANVAS_HEIGHT); ctx.stroke();
+      ctx.beginPath(); ctx.arc(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, 55, 0, Math.PI * 2); ctx.stroke();
+
+      drawAprilTag(15, 15);
+      drawAprilTag(CANVAS_WIDTH - 35, 15);
+      drawAprilTag(15, CANVAS_HEIGHT - 35);
+      drawAprilTag(CANVAS_WIDTH - 35, CANVAS_HEIGHT - 35);
+    }
+
+    function drawAprilTag(x, y) {
+      ctx.fillStyle = '#000000'; ctx.fillRect(x, y, 20, 20);
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(x + 4, y + 4, 12, 12);
+      ctx.fillStyle = '#000000'; ctx.fillRect(x + 7, y + 7, 6, 6);
+    }
+
+    // Yoda ve Dairesel Bumper Çizimi (GARDIRAP KIYAFETLERİ DAHİL)
+    function drawYodaRobot() {
+      const pColor = selectedAlliance === 'red' ? '#ef4444' : '#3b82f6';
+      const now = performance.now();
+      const isInvulnerable = isBrownoutLocked || (now < invulnerableUntil);
+      const activeOutfit = getActiveOutfit();
+
+      // Trail
+      robot.trail.forEach((p, idx) => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, (idx / robot.trail.length) * 7, 0, Math.PI * 2);
+        ctx.fillStyle = selectedAlliance === 'red' ? `rgba(239, 68, 68, ${p.alpha * 0.3})` : `rgba(59, 130, 246, ${p.alpha * 0.3})`;
+        ctx.fill();
+      });
+
+      // Speaker Namlu Oku
+      if (selectedMode === 'shooter') {
+        ctx.save();
+        ctx.translate(robot.x, robot.y);
+        ctx.rotate(robot.heading);
+
+        ctx.strokeStyle = '#10b981';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(0, -robot.radius - 2);
+        ctx.lineTo(0, -robot.radius - 16);
+        ctx.stroke();
+
+        ctx.fillStyle = '#10b981';
+        ctx.beginPath();
+        ctx.moveTo(0, -robot.radius - 22);
+        ctx.lineTo(-5, -robot.radius - 14);
+        ctx.lineTo(5, -robot.radius - 14);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      ctx.save();
+      ctx.translate(robot.x, robot.y);
+      ctx.rotate(robot.heading);
+
+      if (isInvulnerable) {
+        ctx.globalAlpha = Math.sin(now * 0.03) > 0 ? 0.4 : 0.85;
+      }
+
+      // Şampiyonluk Altın Aurası
+      if (activeOutfit === 'champion') {
+        ctx.shadowBlur = 25;
+        ctx.shadowColor = '#fbbf24';
+      } else {
+        ctx.shadowBlur = isBrownoutLocked ? 4 : 16;
+        ctx.shadowColor = pColor;
+      }
+
+      // Bumper
+      ctx.fillStyle = pColor;
+      ctx.beginPath();
+      ctx.arc(0, 0, robot.radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Dikiş
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = activeOutfit === 'champion' ? '#fef08a' : '#ffffff';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.arc(0, 0, robot.radius - 3, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Şasi
+      ctx.fillStyle = activeOutfit === 'cyber' ? '#334155' : '#1e293b';
+      ctx.beginPath();
+      ctx.arc(0, 0, robot.radius - 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = activeOutfit === 'champion' ? '#f59e0b' : '#475569';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Swerve Podlar
+      const podDist = robot.radius - 9;
+      [-Math.PI/4, Math.PI/4, 3*Math.PI/4, -3*Math.PI/4].forEach(a => {
+        ctx.fillStyle = activeOutfit === 'cyber' ? '#06b6d4' : '#64748b';
+        ctx.beginPath();
+        ctx.arc(Math.cos(a) * podDist, Math.sin(a) * podDist, 3, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // -------------------------------------------------------------
+      // GARDIRAP KIYAFET RENKLERİ VE DETAYLARI
+      // -------------------------------------------------------------
+      let robeColor = '#78350f'; // Klasik kahverengi
+      let collarColor = '#d6d3d1'; // Krem kürk
+
+      if (activeOutfit === 'safety') {
+        robeColor = '#eab308'; // Fosforlu Güvenlik Sarısı
+        collarColor = '#10b981'; // Güvenlik Yeşili
+      } else if (activeOutfit === 'driver') {
+        robeColor = '#0f172a'; // Koyu Driver Hoodie
+        collarColor = '#3b82f6';
+      } else if (activeOutfit === 'cyber') {
+        robeColor = '#475569'; // Mecha Zırh
+        collarColor = '#a855f7'; // Neon Mor
+      } else if (activeOutfit === 'champion') {
+        robeColor = '#f59e0b'; // Altın Pelerin
+        collarColor = '#fef08a';
+      }
+
+      // Cübbe
+      ctx.fillStyle = robeColor;
+      ctx.beginPath();
+      ctx.ellipse(0, 6, 12, 9, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Özel Kıyafet Göğüs Detayları
+      if (activeOutfit === 'safety') {
+        // Yansıtıcı Güvenlik Şeridi
+        ctx.fillStyle = '#e2e8f0';
+        ctx.fillRect(-8, 6, 16, 2.5);
+      } else if (activeOutfit === 'driver') {
+        // FRC Drive Team Lanyard
+        ctx.strokeStyle = '#ef4444';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(-3, 6, 6, 4);
+      } else if (activeOutfit === 'cyber') {
+        // Mecha Reaktif Güç Çekirdeği
+        ctx.fillStyle = '#06b6d4';
+        ctx.beginPath();
+        ctx.arc(0, 7, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (activeOutfit === 'champion') {
+        // Altın Madalyon
+        ctx.fillStyle = '#fef08a';
+        ctx.beginPath();
+        ctx.arc(0, 7, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Yaka
+      ctx.fillStyle = collarColor;
+      ctx.beginPath();
+      ctx.ellipse(0, 2, 10, 4, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Kulaklar
+      ctx.fillStyle = '#84cc16';
+      ctx.beginPath();
+      ctx.moveTo(-7, -4); ctx.quadraticCurveTo(-22, -10, -23, -2); ctx.quadraticCurveTo(-15, 3, -6, 2); ctx.fill();
+      ctx.fillStyle = '#f472b6';
+      ctx.beginPath();
+      ctx.moveTo(-9, -3); ctx.quadraticCurveTo(-18, -6, -17, -1); ctx.quadraticCurveTo(-14, 1, -8, 1); ctx.fill();
+
+      ctx.fillStyle = '#84cc16';
+      ctx.beginPath();
+      ctx.moveTo(7, -4); ctx.quadraticCurveTo(22, -10, 23, -2); ctx.quadraticCurveTo(15, 3, 6, 2); ctx.fill();
+      ctx.fillStyle = '#f472b6';
+      ctx.beginPath();
+      ctx.moveTo(9, -3); ctx.quadraticCurveTo(18, -6, 17, -1); ctx.quadraticCurveTo(14, 1, 8, 1); ctx.fill();
+
+      // Driver Kulaklığı
+      if (activeOutfit === 'driver') {
+        ctx.fillStyle = '#0284c7';
+        ctx.fillRect(-12, -8, 4, 7);
+        ctx.fillRect(8, -8, 4, 7);
+        ctx.strokeStyle = '#0284c7';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(0, -9, 10, Math.PI, 0);
+        ctx.stroke();
+      }
+
+      // Kafa
+      ctx.fillStyle = '#84cc16';
+      ctx.beginPath();
+      ctx.arc(0, -5, 9.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Gözler
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.ellipse(-3.5, -5, 2.5, 3, -0.1, 0, Math.PI * 2);
+      ctx.ellipse(3.5, -5, 2.5, 3, 0.1, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(-4.2, -6, 1, 0, Math.PI * 2);
+      ctx.arc(2.8, -6, 1, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Safety Gözlüğü
+      if (activeOutfit === 'safety') {
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.85)';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(-7, -8, 6, 5);
+        ctx.strokeRect(1, -8, 6, 5);
+        ctx.beginPath();
+        ctx.moveTo(-1, -6); ctx.lineTo(1, -6); ctx.stroke();
+      }
+
+      // Cyber Vizör
+      if (activeOutfit === 'cyber') {
+        ctx.fillStyle = '#a855f7';
+        ctx.fillRect(-6, -7, 12, 3.5);
+        ctx.fillStyle = '#06b6d4';
+        ctx.fillRect(-4, -6, 8, 1.5);
+      }
+
+      // Champion Tacı
+      if (activeOutfit === 'champion') {
+        ctx.fillStyle = '#fef08a';
+        ctx.beginPath();
+        ctx.moveTo(-6, -14);
+        ctx.lineTo(-4, -10);
+        ctx.lineTo(0, -15);
+        ctx.lineTo(4, -10);
+        ctx.lineTo(6, -14);
+        ctx.lineTo(5, -9);
+        ctx.lineTo(-5, -9);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      // Burun
+      ctx.fillStyle = '#65a30d';
+      ctx.beginPath();
+      ctx.arc(0, -2.5, 1, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Takım No
+      ctx.fillStyle = activeOutfit === 'champion' ? '#fef08a' : '#ffffff';
+      ctx.font = 'bold 8px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('Y0DA', 0, robot.radius - 8);
+
+      // Dokunulmazlık Koruma Kalkanı
+      if (isInvulnerable) {
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(0, 0, robot.radius + 4, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      // Brownout Kıvılcımı
+      if (isBrownoutLocked) {
+        ctx.strokeStyle = '#f59e0b';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-8, -16); ctx.lineTo(-3, -11); ctx.lineTo(-6, -7); ctx.lineTo(0, -1);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    // MOD 1: Tehlike İkazları
+    function drawWarnings() {
+      const now = performance.now();
+      const eColor = rivalAlliance === 'red' ? '#ef4444' : '#3b82f6';
+
+      warnings.forEach(w => {
+        const elapsed = now - w.createdAt;
+        const progress = Math.min(1, elapsed / w.duration);
+        const blink = Math.sin(now * 0.02) > 0;
+
+        ctx.save();
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = eColor;
+        ctx.strokeStyle = blink ? eColor : 'rgba(255, 255, 255, 0.3)';
+        ctx.lineWidth = 5;
+
+        ctx.beginPath();
+        if (w.side === 'left' || w.side === 'right') {
+          ctx.moveTo(w.edgeX, w.edgeY - 25);
+          ctx.lineTo(w.edgeX, w.edgeY + 25);
+        } else {
+          ctx.moveTo(w.edgeX - 25, w.edgeY);
+          ctx.lineTo(w.edgeX + 25, w.edgeY);
+        }
+        ctx.stroke();
+
+        ctx.strokeStyle = eColor;
+        ctx.globalAlpha = 0.2 + (1 - progress) * 0.3;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 6]);
+        ctx.beginPath();
+        ctx.moveTo(w.edgeX, w.edgeY);
+        ctx.lineTo(w.edgeX + w.dirX * 450, w.edgeY + w.dirY * 450);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.globalAlpha = 1.0;
+
+        const iconX = w.edgeX + (w.side === 'left' ? 24 : w.side === 'right' ? -24 : 0);
+        const iconY = w.edgeY + (w.side === 'top' ? 24 : w.side === 'bottom' ? -24 : 0);
+        ctx.translate(iconX, iconY);
+        const scale = 1 + Math.sin(now * 0.015) * 0.15;
+        ctx.scale(scale, scale);
+
+        ctx.fillStyle = blink ? eColor : '#1e293b';
+        ctx.beginPath();
+        ctx.arc(0, 0, 14, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '900 16px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('!', 0, 1);
+        ctx.restore();
+      });
+    }
+
+    // MOD 1: Engeller
+    function drawObstacles() {
+      const eColor = rivalAlliance === 'red' ? '#ef4444' : '#3b82f6';
+      const eBg = rivalAlliance === 'red' ? '#7f1d1d' : '#1e3a8a';
+
+      obstacles.forEach(obs => {
+        ctx.save();
+        ctx.translate(obs.x, obs.y);
+        ctx.rotate(obs.rotation);
+
+        ctx.shadowBlur = 18;
+        ctx.shadowColor = eColor;
+
+        ctx.fillStyle = eBg;
+        ctx.beginPath();
+        ctx.arc(0, 0, obs.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = eColor;
+        ctx.lineWidth = 3.5;
+        ctx.stroke();
+
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#1e293b';
+        ctx.beginPath();
+        ctx.arc(0, 0, obs.radius - 7, 0, Math.PI * 2);
+        ctx.fill();
+
+        const blades = 4;
+        ctx.strokeStyle = eColor;
+        ctx.lineWidth = 2.5;
+        for (let i = 0; i < blades; i++) {
+          const a = (i * Math.PI * 2) / blades;
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(Math.cos(a) * (obs.radius - 4), Math.sin(a) * (obs.radius - 4));
+          ctx.stroke();
+        }
+
+        ctx.fillStyle = eColor;
+        ctx.beginPath();
+        ctx.arc(0, 0, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      });
+    }
+
+    // Notalar
+    function drawGamePieces() {
+      const now = performance.now();
+      gamePieces.forEach(gp => {
+        ctx.save();
+        ctx.translate(gp.x, gp.y);
+        const bob = Math.sin(now * 0.006 + gp.seed) * 3;
+        ctx.translate(0, bob);
+
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = '#f97316';
+
+        ctx.fillStyle = '#ea580c';
+        ctx.beginPath();
+        ctx.arc(0, 0, gp.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.arc(0, 0, gp.radius * 0.45, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#fdba74';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.restore();
+      });
+    }
+
+    // MOD 2: Speaker, Engeller ve Mermiler
+    function drawSpeakerModeElements() {
+      if (selectedMode !== 'shooter') return;
+
+      const eColor = rivalAlliance === 'red' ? '#ef4444' : '#3b82f6';
+
+      // Speaker
+      ctx.save();
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = '#10b981';
+
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(speakerTarget.x - speakerTarget.width / 2, speakerTarget.y - speakerTarget.height / 2, speakerTarget.width, speakerTarget.height);
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(speakerTarget.x - speakerTarget.width / 2, speakerTarget.y - speakerTarget.height / 2, speakerTarget.width, speakerTarget.height);
+
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(speakerTarget.x - speakerTarget.width / 2 + 10, speakerTarget.y - speakerTarget.height / 2 + 4, speakerTarget.width - 20, speakerTarget.height - 8);
+
+      ctx.fillStyle = '#10b981';
+      ctx.font = 'bold 11px monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('★ FRC SPEAKER (2PTS) ★', speakerTarget.x, speakerTarget.y);
+      ctx.restore();
+
+      // Truss Sütunları
+      trussPillars.forEach(pillar => {
+        ctx.save();
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = '#64748b';
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(pillar.x - pillar.width / 2, pillar.y - pillar.height / 2, pillar.width, pillar.height);
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(pillar.x - pillar.width / 2, pillar.y - pillar.height / 2, pillar.width, pillar.height);
+
+        ctx.strokeStyle = '#475569';
+        ctx.beginPath();
+        ctx.moveTo(pillar.x - pillar.width / 2, pillar.y - pillar.height / 2);
+        ctx.lineTo(pillar.x + pillar.width / 2, pillar.y + pillar.height / 2);
+        ctx.moveTo(pillar.x + pillar.width / 2, pillar.y - pillar.height / 2);
+        ctx.lineTo(pillar.x - pillar.width / 2, pillar.y + pillar.height / 2);
+        ctx.stroke();
+        ctx.restore();
+      });
+
+      // Bloker Botlar
+      defenseBlockers.forEach(b => {
+        ctx.save();
+        ctx.translate(b.x, b.y);
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = eColor;
+
+        ctx.fillStyle = eColor;
+        ctx.beginPath();
+        ctx.arc(0, 0, b.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, 0, b.radius - 4, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 8px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('BLOCK', 0, 0);
+
+        ctx.restore();
+      });
+
+      // Mermiler
+      projectiles.forEach(p => {
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.shadowBlur = 14;
+        ctx.shadowColor = '#f97316';
+
+        ctx.fillStyle = '#f97316';
+        ctx.beginPath();
+        ctx.arc(0, 0, 9, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#fdba74';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.restore();
+      });
+    }
+
+    // MOD 3: BUMPER BASH
+    function drawSumoModeElements() {
+      if (selectedMode !== 'sumo') return;
+
+      const eColor = rivalAlliance === 'red' ? '#ef4444' : '#3b82f6';
+
+      ctx.save();
+      ctx.strokeStyle = 'rgba(239, 68, 68, 0.4)';
+      ctx.lineWidth = 6;
+      ctx.strokeRect(10, 10, CANVAS_WIDTH - 20, CANVAS_HEIGHT - 20);
+      ctx.restore();
+
+      sumoEnemies.forEach(e => {
+        ctx.save();
+        ctx.translate(e.x, e.y);
+        ctx.rotate(e.rotation);
+
+        ctx.shadowBlur = 14;
+        ctx.shadowColor = eColor;
+
+        ctx.fillStyle = eColor;
+        ctx.beginPath();
+        ctx.arc(0, 0, e.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = '#1e293b';
+        ctx.beginPath();
+        ctx.arc(0, 0, e.radius - 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 8px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('BASH', 0, 0);
+
+        ctx.restore();
+      });
+    }
+
+    function drawParticles() {
+      particles.forEach(p => {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.alpha;
+        ctx.fill();
+        ctx.restore();
+      });
+    }
+
+    /* --------------------------------------------------------------------------
+       6. FİZİK VE KONTROLLER
+       -------------------------------------------------------------------------- */
+    function updatePhysics(dt) {
+      if (gameState !== 'RUNNING') return;
+
+      const now = performance.now();
+
+      if (isBrownoutLocked) {
+        if (now >= brownoutEndTime) {
+          isBrownoutLocked = false;
+          invulnerableUntil = now + 1000;
+          glitchOverlay.classList.remove('active');
+        } else {
+          robot.vx *= 0.92;
+          robot.vy *= 0.92;
+          robot.x += robot.vx;
+          robot.y += robot.vy;
+          return;
+        }
+      }
+
+      if (selectedMode === 'shooter') {
+        // Speaker Modu: A/D ile kademeli, düşük duyarlılıklı hassas nişan alma
+        const turnSpeed = 0.045; // ~2.5 derece
+        if (keys.a || keys.ArrowLeft) {
+          robot.heading -= turnSpeed;
+        }
+        if (keys.d || keys.ArrowRight) {
+          robot.heading += turnSpeed;
+        }
+
+        let moveSpeed = 0;
+        if (keys.w || keys.ArrowUp) moveSpeed += 3.8;
+        if (keys.s || keys.ArrowDown) moveSpeed -= 3.0;
+
+        if (moveSpeed !== 0) {
+          const forwardAngle = robot.heading - Math.PI / 2;
+          robot.vx += Math.cos(forwardAngle) * (moveSpeed * 0.12);
+          robot.vy += Math.sin(forwardAngle) * (moveSpeed * 0.12);
+        }
+
+      } else {
+        // Serbest 360 Derece Swerve Sürüşü
+        let inputX = 0;
+        let inputY = 0;
+        if (keys.w || keys.ArrowUp) inputY -= 1;
+        if (keys.s || keys.ArrowDown) inputY += 1;
+        if (keys.a || keys.ArrowLeft) inputX -= 1;
+        if (keys.d || keys.ArrowRight) inputX += 1;
+
+        const len = Math.hypot(inputX, inputY);
+        if (len > 0) {
+          inputX /= len;
+          inputY /= len;
+          robot.vx += inputX * robot.accel;
+          robot.vy += inputY * robot.accel;
+          robot.targetHeading = Math.atan2(inputY, inputX) + Math.PI / 2;
+        }
+
+        let diff = robot.targetHeading - robot.heading;
+        while (diff < -Math.PI) diff += Math.PI * 2;
+        while (diff > Math.PI) diff -= Math.PI * 2;
+        robot.heading += diff * 0.15;
+      }
+
+      robot.vx *= robot.friction;
+      robot.vy *= robot.friction;
+
+      const currentSpeed = Math.hypot(robot.vx, robot.vy);
+      if (currentSpeed > robot.maxSpeed) {
+        robot.vx = (robot.vx / currentSpeed) * robot.maxSpeed;
+        robot.vy = (robot.vy / currentSpeed) * robot.maxSpeed;
+      }
+
+      robot.x += robot.vx;
+      robot.y += robot.vy;
+
+      if (robot.x - robot.radius < 0) { robot.x = robot.radius; robot.vx = -robot.vx * 0.3; }
+      if (robot.x + robot.radius > CANVAS_WIDTH) { robot.x = CANVAS_WIDTH - robot.radius; robot.vx = -robot.vx * 0.3; }
+      if (robot.y - robot.radius < 0) { robot.y = robot.radius; robot.vy = -robot.vy * 0.3; }
+      if (robot.y + robot.radius > CANVAS_HEIGHT) { robot.y = CANVAS_HEIGHT - robot.radius; robot.vy = -robot.vy * 0.3; }
+
+      if (currentSpeed > 0.8) {
+        robot.trail.push({ x: robot.x, y: robot.y, alpha: 0.8 });
+      }
+      for (let i = robot.trail.length - 1; i >= 0; i--) {
+        robot.trail[i].alpha -= 0.04;
+        if (robot.trail[i].alpha <= 0) robot.trail.splice(i, 1);
+      }
+    }
+
+    /* --- MOD 1 GÜNCELLEMELERİ (DEFANS KAÇIŞI) --- */
+    function updateModeEvader(now, dt) {
+      if (selectedMode !== 'evader') return;
+
+      if (now >= nextObstacleSpawn) {
+        scheduleIncomingObstacle(1.25);
+        nextObstacleSpawn = now + 1150;
+      }
+
+      if (now >= nextPieceSpawn && gamePieces.length < 3) {
+        spawnGamePiece();
+        nextPieceSpawn = now + 3500;
+      }
+
+      const isInvulnerable = isBrownoutLocked || (now < invulnerableUntil);
+
+      for (let i = obstacles.length - 1; i >= 0; i--) {
+        const obs = obstacles[i];
+        obs.x += obs.vx;
+        obs.y += obs.vy;
+        obs.rotation += obs.rotSpeed;
+
+        if (!isInvulnerable && Math.hypot(robot.x - obs.x, robot.y - obs.y) < robot.radius + obs.radius) {
+          triggerBrownout();
+          createSparks(obs.x, obs.y, rivalAlliance === 'red' ? '#ef4444' : '#3b82f6', 16);
+          obstacles.splice(i, 1);
+          continue;
+        }
+
+        if (obs.x < -60 || obs.x > CANVAS_WIDTH + 60 || obs.y < -60 || obs.y > CANVAS_HEIGHT + 60) {
+          obstacles.splice(i, 1);
+          dodgedObstacles++;
+          score += 15;
+          updateDashboard();
+        }
+      }
+
+      for (let i = gamePieces.length - 1; i >= 0; i--) {
+        const gp = gamePieces[i];
+        if (Math.hypot(robot.x - gp.x, robot.y - gp.y) < robot.radius + gp.radius) {
+          score += 50;
+          createSparks(gp.x, gp.y, '#f97316', 12);
+          audio.playScoreSound();
+          gamePieces.splice(i, 1);
+          updateDashboard();
+        }
+      }
+    }
+
+    function scheduleIncomingObstacle(speedMultiplier) {
+      const now = performance.now();
+      const sides = ['left', 'right', 'top', 'bottom'];
+      const side = sides[Math.floor(Math.random() * sides.length)];
+
+      let edgeX = 0, edgeY = 0, dirX = 0, dirY = 0, spawnX = 0, spawnY = 0;
+      const margin = 50;
+      const baseSpeed = (3.0 + Math.random() * 2.2) * speedMultiplier;
+
+      if (side === 'left') {
+        edgeX = 0; edgeY = margin + Math.random() * (CANVAS_HEIGHT - margin * 2);
+        spawnX = -35; spawnY = edgeY; dirX = 1; dirY = (Math.random() - 0.5) * 0.4;
+      } else if (side === 'right') {
+        edgeX = CANVAS_WIDTH; edgeY = margin + Math.random() * (CANVAS_HEIGHT - margin * 2);
+        spawnX = CANVAS_WIDTH + 35; spawnY = edgeY; dirX = -1; dirY = (Math.random() - 0.5) * 0.4;
+      } else if (side === 'top') {
+        edgeX = margin + Math.random() * (CANVAS_WIDTH - margin * 2); edgeY = 0;
+        spawnX = edgeX; spawnY = -35; dirX = (Math.random() - 0.5) * 0.4; dirY = 1;
+      } else {
+        edgeX = margin + Math.random() * (CANVAS_WIDTH - margin * 2); edgeY = CANVAS_HEIGHT;
+        spawnX = edgeX; spawnY = CANVAS_HEIGHT + 35; dirX = (Math.random() - 0.5) * 0.4; dirY = -1;
+      }
+
+      const dlen = Math.hypot(dirX, dirY);
+      dirX /= dlen; dirY /= dlen;
+
+      const warningObj = {
+        id: Math.random(), side, edgeX, edgeY, dirX, dirY,
+        createdAt: now, duration: 1000
+      };
+
+      warnings.push(warningObj);
+      audio.playWarningPulse();
+
+      setTimeout(() => {
+        if (gameState !== 'RUNNING') return;
+        warnings = warnings.filter(w => w.id !== warningObj.id);
+        obstacles.push({
+          x: spawnX, y: spawnY, vx: dirX * baseSpeed, vy: dirY * baseSpeed,
+          radius: 20 + Math.random() * 5, rotation: Math.random() * Math.PI,
+          rotSpeed: (Math.random() - 0.5) * 0.1
+        });
+      }, 1000);
+    }
+
+    function spawnGamePiece() {
+      const pad = 70;
+      gamePieces.push({
+        x: pad + Math.random() * (CANVAS_WIDTH - pad * 2),
+        y: (selectedMode === 'shooter' ? 220 : pad) + Math.random() * (selectedMode === 'shooter' ? (CANVAS_HEIGHT - 260) : (CANVAS_HEIGHT - pad * 2)),
+        radius: 14, seed: Math.random() * 10
+      });
+    }
+
+    /* --- MOD 2 GÜNCELLEMELERİ (SPEAKER SHOOTER) --- */
+    function updateModeShooter(now, dt) {
+      if (selectedMode !== 'shooter') return;
+
+      speakerTarget.x += speakerTarget.vx;
+      if (speakerTarget.x - speakerTarget.width / 2 < 70 || speakerTarget.x + speakerTarget.width / 2 > CANVAS_WIDTH - 70) {
+        speakerTarget.vx *= -1;
+      }
+
+      if (now >= nextPieceSpawn && gamePieces.length < 4) {
+        spawnGamePiece();
+        nextPieceSpawn = now + 2400;
+      }
+
+      defenseBlockers.forEach(b => {
+        b.x += b.vx;
+        if (b.x < 90 || b.x > CANVAS_WIDTH - 90) b.vx *= -1;
+      });
+
+      for (let i = projectiles.length - 1; i >= 0; i--) {
+        const p = projectiles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (
+          p.x >= speakerTarget.x - speakerTarget.width / 2 &&
+          p.x <= speakerTarget.x + speakerTarget.width / 2 &&
+          p.y >= speakerTarget.y - speakerTarget.height / 2 &&
+          p.y <= speakerTarget.y + speakerTarget.height / 2
+        ) {
+          score += 100;
+          speakerScoreCount++;
+          audio.playTargetHitSound();
+          createSparks(p.x, p.y, '#10b981', 22);
+          projectiles.splice(i, 1);
+          updateDashboard();
+          continue;
+        }
+
+        let hitTruss = false;
+        for (let pillar of trussPillars) {
+          if (
+            p.x >= pillar.x - pillar.width / 2 &&
+            p.x <= pillar.x + pillar.width / 2 &&
+            p.y >= pillar.y - pillar.height / 2 &&
+            p.y <= pillar.y + pillar.height / 2
+          ) {
+            hitTruss = true;
+            createSparks(p.x, p.y, '#94a3b8', 8);
+            audio.playClick();
+            break;
+          }
+        }
+        if (hitTruss) {
+          projectiles.splice(i, 1);
+          continue;
+        }
+
+        let blocked = false;
+        for (let b of defenseBlockers) {
+          if (Math.hypot(p.x - b.x, p.y - b.y) < b.radius + 9) {
+            blocked = true;
+            createSparks(p.x, p.y, rivalAlliance === 'red' ? '#ef4444' : '#3b82f6', 10);
+            audio.playWarningPulse();
+            break;
+          }
+        }
+        if (blocked) {
+          projectiles.splice(i, 1);
+          continue;
+        }
+
+        if (p.y < 0 || p.x < 0 || p.x > CANVAS_WIDTH || p.y > CANVAS_HEIGHT) {
+          projectiles.splice(i, 1);
+        }
+      }
+
+      for (let i = gamePieces.length - 1; i >= 0; i--) {
+        const gp = gamePieces[i];
+        if (Math.hypot(robot.x - gp.x, robot.y - gp.y) < robot.radius + gp.radius) {
+          if (carriedNotes < maxCarriedNotes) {
+            carriedNotes++;
+            score += 25;
+            audio.playScoreSound();
+            createSparks(gp.x, gp.y, '#ea580c', 10);
+            gamePieces.splice(i, 1);
+            updateDashboard();
+          }
+        }
+      }
+    }
+
+    // SADECE SPACE İLE ATIŞ: Yoda'nın Namlu Doğrultusuna Fırlar!
+    function shootNote() {
+      if (selectedMode !== 'shooter' || gameState !== 'RUNNING') return;
+      if (carriedNotes <= 0) return;
+
+      carriedNotes--;
+      audio.playShootSound();
+
+      const shootAngle = robot.heading - Math.PI / 2;
+      const speed = 12;
+
+      projectiles.push({
+        x: robot.x,
+        y: robot.y,
+        vx: Math.cos(shootAngle) * speed,
+        vy: Math.sin(shootAngle) * speed
+      });
+
+      updateDashboard();
+    }
+
+    /* --- MOD 3 GÜNCELLEMELERİ (BUMPER BASH / SUMO DERBİSİ) --- */
+    function updateModeSumo(now, dt) {
+      if (selectedMode !== 'sumo') return;
+
+      if (turboEnergy < 100) {
+        turboEnergy = Math.min(100, turboEnergy + dt * 25);
+      }
+
+      if (sumoEnemies.length < 4) {
+        spawnSumoEnemy();
+      }
+
+      const isInvulnerable = isBrownoutLocked || (now < invulnerableUntil);
+
+      for (let i = sumoEnemies.length - 1; i >= 0; i--) {
+        const enemy = sumoEnemies[i];
+
+        const dx = robot.x - enemy.x;
+        const dy = robot.y - enemy.y;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist > 0) {
+          enemy.vx += (dx / dist) * 0.15;
+          enemy.vy += (dy / dist) * 0.15;
+        }
+
+        enemy.vx *= 0.94;
+        enemy.vy *= 0.94;
+        enemy.x += enemy.vx;
+        enemy.y += enemy.vy;
+        enemy.rotation += 0.05;
+
+        if (dist < robot.radius + enemy.radius) {
+          const robotSpeed = Math.hypot(robot.vx, robot.vy);
+
+          if (robotSpeed > 4.2) {
+            knockouts++;
+            score += 150;
+            audio.playSmashSound();
+            createSparks(enemy.x, enemy.y, rivalAlliance === 'red' ? '#ef4444' : '#3b82f6', 25);
+
+            robot.vx *= -0.4;
+            robot.vy *= -0.4;
+            sumoEnemies.splice(i, 1);
+            updateDashboard();
+            continue;
+          } else {
+            if (isInvulnerable) {
+              enemy.vx *= -1.2;
+              enemy.vy *= -1.2;
+            } else {
+              triggerBrownout();
+              enemy.vx *= -1.5;
+              enemy.vy *= -1.5;
+              break;
+            }
+          }
+        }
+
+        if (enemy.x < 30 || enemy.x > CANVAS_WIDTH - 30) enemy.vx *= -1;
+        if (enemy.y < 30 || enemy.y > CANVAS_HEIGHT - 30) enemy.vy *= -1;
+      }
+
+      updateDashboard();
+    }
+
+    function spawnSumoEnemy() {
+      const sides = [
+        { x: 50, y: 50 },
+        { x: CANVAS_WIDTH - 50, y: 50 },
+        { x: 50, y: CANVAS_HEIGHT - 50 },
+        { x: CANVAS_WIDTH - 50, y: CANVAS_HEIGHT - 50 }
+      ];
+      const pos = sides[Math.floor(Math.random() * sides.length)];
+      sumoEnemies.push({
+        x: pos.x, y: pos.y,
+        vx: (Math.random() - 0.5) * 2,
+        vy: (Math.random() - 0.5) * 2,
+        radius: 24,
+        rotation: 0
+      });
+    }
+
+    function triggerTurboBoost() {
+      if (selectedMode !== 'sumo' || gameState !== 'RUNNING') return;
+      if (turboEnergy < 40) return;
+
+      turboEnergy -= 40;
+      audio.playBoostSound();
+
+      const boostSpeed = 11;
+      const angle = robot.heading - Math.PI / 2;
+      robot.vx = Math.cos(angle) * boostSpeed;
+      robot.vy = Math.sin(angle) * boostSpeed;
+
+      createSparks(robot.x, robot.y, '#38bdf8', 18);
+      updateDashboard();
+    }
+
+    /* --- BROWNOUT VE PARÇACIKLAR --- */
+    function triggerBrownout() {
+      if (isBrownoutLocked) return;
+
+      brownoutCount++;
+      score = Math.max(0, score - 30);
+      batteryVoltage = Math.max(6.2, batteryVoltage - 1.8);
+
+      isBrownoutLocked = true;
+      brownoutEndTime = performance.now() + 1500;
+      invulnerableUntil = brownoutEndTime + 1000;
+
+      glitchOverlay.classList.add('active');
+      audio.playBrownoutSound();
+
+      robot.vx *= -0.5;
+      robot.vy *= -0.5;
+      updateDashboard();
+    }
+
+    function createSparks(x, y, color, count) {
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 1.5 + Math.random() * 4.5;
+        particles.push({
+          x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+          size: 2 + Math.random() * 3, color, alpha: 1.0,
+          decay: 0.03 + Math.random() * 0.03
+        });
+      }
+    }
+
+    function updateParticles() {
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx; p.y += p.vy;
+        p.alpha -= p.decay;
+        if (p.alpha <= 0) particles.splice(i, 1);
+      }
+    }
+
+    /* --------------------------------------------------------------------------
+       7. ZAMANLAYICI (1 DAKİKA) VE DASHBOARD
+       -------------------------------------------------------------------------- */
+    function updateMatchTimer(dt) {
+      if (gameState !== 'RUNNING') return;
+
+      matchTimeRemaining -= dt;
+      if (matchTimeRemaining <= 0) {
+        matchTimeRemaining = 0;
+        endMatch();
+        return;
+      }
+
+      let phase = 'TELEOP';
+      if (matchTimeRemaining > 50) phase = 'AUTO';
+      else if (matchTimeRemaining <= 15) phase = 'ENDGAME';
+
+      dashboardPhase.textContent = phase;
+      dashboardPhase.className = `phase-badge phase-${phase.toLowerCase()}`;
+
+      if (!isBrownoutLocked && batteryVoltage < 12.6) {
+        batteryVoltage = Math.min(12.6, batteryVoltage + dt * 0.4);
+      }
+
+      updateDashboard();
+    }
+
+    function updateDashboard() {
+      dashboardScore.innerHTML = `${score} <span class="unit">PTS</span>`;
+
+      const mins = Math.floor(matchTimeRemaining / 60);
+      const secs = Math.floor(matchTimeRemaining % 60);
+      dashboardTimer.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+      if (selectedMode === 'evader') {
+        dashboardModeName.textContent = 'DEFENSE EVADER';
+        statDynamicLabel.textContent = 'Main Battery';
+        dashboardVoltageTxt.textContent = `${batteryVoltage.toFixed(1)}V`;
+        const voltPercent = Math.max(10, Math.min(100, ((batteryVoltage - 6) / 6.6) * 100));
+        dashboardVoltageBar.style.width = `${voltPercent}%`;
+        dashboardSubLabel.textContent = 'Brownouts';
+        dashboardSubValue.textContent = brownoutCount;
+      } else if (selectedMode === 'shooter') {
+        dashboardModeName.textContent = 'SPEAKER SHOOTER';
+        statDynamicLabel.textContent = 'Notes Loaded (Max 4)';
+        dashboardVoltageTxt.textContent = `${carriedNotes} / ${maxCarriedNotes}`;
+        dashboardVoltageBar.style.width = `${(carriedNotes / maxCarriedNotes) * 100}%`;
+        dashboardSubLabel.textContent = 'Goals Scored';
+        dashboardSubValue.textContent = speakerScoreCount;
+      } else if (selectedMode === 'sumo') {
+        dashboardModeName.textContent = 'BUMPER BASH';
+        statDynamicLabel.textContent = 'Turbo Energy';
+        dashboardVoltageTxt.textContent = `${Math.floor(turboEnergy)}%`;
+        dashboardVoltageBar.style.width = `${turboEnergy}%`;
+        dashboardSubLabel.textContent = 'Knockouts';
+        dashboardSubValue.textContent = knockouts;
+      }
+    }
+
+    /* --------------------------------------------------------------------------
+       8. OYUN DÖNGÜSÜ
+       -------------------------------------------------------------------------- */
+    function gameLoop(timestamp) {
+      if (!lastTime) lastTime = timestamp;
+      const dt = Math.min((timestamp - lastTime) / 1000, 0.1);
+      lastTime = timestamp;
+
+      if (gameState === 'RUNNING') {
+        updatePhysics(dt);
+        updateModeEvader(timestamp, dt);
+        updateModeShooter(timestamp, dt);
+        updateModeSumo(timestamp, dt);
+        updateParticles();
+        updateMatchTimer(dt);
+      }
+
+      drawFieldBackground();
+      drawGamePieces();
+      drawSumoModeElements();
+      drawSpeakerModeElements();
+      drawObstacles();
+      drawWarnings();
+      drawYodaRobot();
+      drawParticles();
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    /* --------------------------------------------------------------------------
+       9. MAÇ BAŞLATMA / BİTİRME & MENÜYE DÖNÜŞ
+       -------------------------------------------------------------------------- */
+    function startMatch() {
+      audio.init();
+
+      score = 0;
+      brownoutCount = 0;
+      batteryVoltage = 12.6;
+      isBrownoutLocked = false;
+      invulnerableUntil = 0;
+      matchTimeRemaining = MATCH_DURATION;
+
+      dodgedObstacles = 0;
+      carriedNotes = 2;
+      speakerScoreCount = 0;
+      projectiles = [];
+
+      turboEnergy = 100;
+      knockouts = 0;
+      sumoEnemies = [];
+
+      obstacles = [];
+      warnings = [];
+      gamePieces = [];
+      particles = [];
+
+      robot.x = CANVAS_WIDTH / 2;
+      robot.y = (selectedMode === 'shooter') ? CANVAS_HEIGHT - 90 : CANVAS_HEIGHT / 2;
+      robot.vx = 0;
+      robot.vy = 0;
+      robot.heading = 0; // Speaker modunda yukarıya bakar
+      robot.trail = [];
+
+      if (selectedMode === 'shooter') {
+        defenseBlockers = [
+          { x: 180, y: 130, vx: 2.8, radius: 22 },
+          { x: 400, y: 180, vx: -2.2, radius: 24 },
+          { x: 620, y: 130, vx: 3.1, radius: 22 }
+        ];
+        trussPillars = [
+          { x: 280, y: 270, width: 36, height: 80 },
+          { x: 520, y: 270, width: 36, height: 80 }
+        ];
+      }
+
+      if (selectedMode === 'sumo') {
+        spawnSumoEnemy();
+        spawnSumoEnemy();
+        spawnSumoEnemy();
+      }
+
+      nextObstacleSpawn = performance.now() + 800;
+      nextPieceSpawn = performance.now() + 1200;
+
+      startScreen.classList.add('hidden');
+      gameOverScreen.classList.add('hidden');
+      wardrobeModal.classList.remove('active');
+      glitchOverlay.classList.remove('active');
+
+      gameState = 'RUNNING';
+      audio.playMatchStart();
+      updateDashboard();
+    }
+
+    // Oyun Sırasında Süre Dolmadan Ana Menüye Dönüş
+    function returnToMainMenu() {
+      audio.playClick();
+      gameState = 'START';
+      glitchOverlay.classList.remove('active');
+      gameOverScreen.classList.add('hidden');
+      wardrobeModal.classList.remove('active');
+      startScreen.classList.remove('hidden');
+
+      // Yarım kalan maçtaki skoru da Lyron olarak ekle
+      if (score > 0) {
+        addLyron(Math.floor(score * 0.5));
+      }
+      updateLyronUI();
+    }
+
+    function endMatch() {
+      gameState = 'GAMEOVER';
+
+      document.getElementById('finalScoreVal').textContent = score;
+
+      // MAÇ BİTİNCE SKOR KADAR LYRON KAZANILIR!
+      const earnedLy = score;
+      addLyron(earnedLy);
+      document.getElementById('earnedLyronVal').textContent = earnedLy;
+      audio.playCoinSound();
+
+      if (selectedMode === 'evader') {
+        document.getElementById('finalStat2Label').textContent = 'Kaçılan Engel';
+        document.getElementById('finalStat2Val').textContent = dodgedObstacles;
+        document.getElementById('finalStat3Label').textContent = 'Brownout';
+        document.getElementById('finalStat3Val').textContent = brownoutCount;
+      } else if (selectedMode === 'shooter') {
+        document.getElementById('finalStat2Label').textContent = 'Speaker Gol';
+        document.getElementById('finalStat2Val').textContent = speakerScoreCount;
+        document.getElementById('finalStat3Label').textContent = 'Kalan Nota';
+        document.getElementById('finalStat3Val').textContent = carriedNotes;
+      } else if (selectedMode === 'sumo') {
+        document.getElementById('finalStat2Label').textContent = 'Knockout';
+        document.getElementById('finalStat2Val').textContent = knockouts;
+        document.getElementById('finalStat3Label').textContent = 'Brownout';
+        document.getElementById('finalStat3Val').textContent = brownoutCount;
+      }
+
+      renderLeaderboard();
+      gameOverScreen.classList.remove('hidden');
+    }
+
+    const LEADERBOARD_KEY = 'frc_yoda_arcade_v6';
+
+    function getLeaderboard() {
+      try {
+        const data = localStorage.getItem(LEADERBOARD_KEY);
+        return data ? JSON.parse(data) : [
+          { name: '#254 The Cheesy Poofs', mode: 'Shooter', alliance: 'blue', score: 1450 },
+          { name: '#1678 Citrus Circuits', mode: 'Sumo', alliance: 'red', score: 1200 },
+          { name: '#118 Robonauts', mode: 'Evader', alliance: 'blue', score: 950 },
+          { name: '#8058 Tech-Yoda', mode: 'Shooter', alliance: 'red', score: 850 }
+        ];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveScore(name, mode, alliance, finalScore) {
+      let board = getLeaderboard();
+      const modeLabels = { evader: 'Evader', shooter: 'Shooter', sumo: 'Sumo' };
+      board.push({
+        name, mode: modeLabels[mode] || mode,
+        alliance, score: finalScore
+      });
+      board.sort((a, b) => b.score - a.score);
+      board = board.slice(0, 10);
+      try {
+        localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(board));
+      } catch (e) {}
+      renderLeaderboard();
+    }
+
+    function renderLeaderboard() {
+      const board = getLeaderboard();
+      leaderboardBody.innerHTML = '';
+      board.forEach((e, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${idx + 1}</strong></td>
+          <td>${escapeHtml(e.name)}</td>
+          <td><span style="color:#38bdf8; font-weight:bold;">${e.mode}</span></td>
+          <td><span class="alliance-tag ${e.alliance}">${e.alliance}</span></td>
+          <td style="font-weight:900; color:#10b981; font-family:monospace;">${e.score}</td>
+        `;
+        leaderboardBody.appendChild(tr);
+      });
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>'"]/g, tag => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+      }[tag] || tag));
+    }
+
+    /* --------------------------------------------------------------------------
+       10. ETKİLEŞİMLER (SADECE KLAVYE VE BUTONLAR)
+       -------------------------------------------------------------------------- */
+    window.addEventListener('keydown', (e) => {
+      if (keys.hasOwnProperty(e.key)) {
+        keys[e.key] = true;
+        if (e.key === ' ') {
+          if (selectedMode === 'shooter') shootNote();
+          else if (selectedMode === 'sumo') triggerTurboBoost();
+        }
+        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
+          e.preventDefault();
+        }
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (keys.hasOwnProperty(e.key)) {
+        keys[e.key] = false;
+      }
+    });
+
+    // İttifak Butonları
+    document.getElementById('btnSelectRed').addEventListener('click', () => {
+      audio.playClick();
+      setAlliance('red');
+    });
+
+    document.getElementById('btnSelectBlue').addEventListener('click', () => {
+      audio.playClick();
+      setAlliance('blue');
+    });
+
+    // Mod Kartları
+    const modeCards = [
+      { id: 'cardModeEvader', mode: 'evader' },
+      { id: 'cardModeShooter', mode: 'shooter' },
+      { id: 'cardModeSumo', mode: 'sumo' }
+    ];
+
+    modeCards.forEach(mc => {
+      document.getElementById(mc.id).addEventListener('click', () => {
+        audio.playClick();
+        selectedMode = mc.mode;
+        modeCards.forEach(item => {
+          document.getElementById(item.id).classList.toggle('active', item.mode === mc.mode);
+        });
+      });
+    });
+
+    // Başlat
+    document.getElementById('btnStartGame').addEventListener('click', () => {
+      startMatch();
+    });
+
+    // Oyundayken Menü Butonu
+    document.getElementById('btnIngameMenu').addEventListener('click', () => {
+      returnToMainMenu();
+    });
+
+    // Maç Sonu Yeniden Başlat
+    document.getElementById('btnRestart').addEventListener('click', () => {
+      returnToMainMenu();
+    });
+
+    // Gardırop Açma / Kapatma Butonları
+    document.getElementById('btnOpenWardrobe').addEventListener('click', () => {
+      audio.playClick();
+      renderWardrobe();
+      wardrobeModal.classList.add('active');
+    });
+
+    document.getElementById('btnHeaderWardrobe').addEventListener('click', () => {
+      audio.playClick();
+      renderWardrobe();
+      wardrobeModal.classList.add('active');
+    });
+
+    document.getElementById('btnRestartWardrobe').addEventListener('click', () => {
+      audio.playClick();
+      renderWardrobe();
+      wardrobeModal.classList.add('active');
+    });
+
+    document.getElementById('btnCloseWardrobe').addEventListener('click', () => {
+      audio.playClick();
+      wardrobeModal.classList.remove('active');
+    });
+
+    // Skor Kaydetme
+    document.getElementById('saveScoreForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = document.getElementById('playerNameInput');
+      const name = input.value.trim();
+      if (name) {
+        audio.playClick();
+        saveScore(name, selectedMode, selectedAlliance, score);
+        input.value = '';
+        input.disabled = true;
+        const btn = e.target.querySelector('button');
+        btn.disabled = true;
+        btn.textContent = 'KAYDEDİLDİ ✔';
+      }
+    });
+
+    // Başlangıç Kurulumu
+    setAlliance('blue');
+    updateLyronUI();
+    renderLeaderboard();
+    requestAnimationFrame(gameLoop);
+  </script>
+</body>
+</html>
